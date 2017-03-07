@@ -105,7 +105,7 @@ int main()
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		//here's the movement algorithm
 
-		if (ev.type == ALLEGRO_EVENT_TIMER) {
+		if (ev.type == ALLEGRO_EVENT_TIMER) { //timer section handles movement and physics
 
 			//if the left button is pressed AND we're still right of the left wall
 			//move the box left by 4 pixels
@@ -126,11 +126,7 @@ int main()
 				ball_dx = -ball_dx;
 			}
 
-			//redraw at every tick of the timer
-			redraw = true;
-
-
-
+			
 			if (key2[0] && padle2_x >= 0) {
 				padle2_x -= 5.0;
 			}
@@ -145,6 +141,19 @@ int main()
 				ball_dy = -ball_dy;
 			}
 
+			//collision
+			if (bounding_box_collision(padle_x, padle_y, 150, 32, ball_x, ball_y,25,25)) {
+				
+					//flip the y direction
+					ball_dy = -ball_dy;
+				
+			}
+			if (bounding_box_collision(padle2_x, padle2_y, 150, 32, ball_x, ball_y, 25,25)) {
+
+				//flip the y direction
+				ball_dy = -ball_dy;
+
+			}
 			//really important code!
 			//move the box in a diagonal
 			ball_x += ball_dx;
@@ -225,40 +234,31 @@ int main()
 			}
 
 		}
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-		//if the clock ticked but no other events happened, don't bother redrawing
-	if (redraw && al_is_event_queue_empty(event_queue)) {
-		redraw = false;
-
-		//paint black over the old screen, so the old square dissapears
-		al_clear_to_color(al_map_rgb(0, 0, 0));
-
-		//the algorithm above just changes the x and y coordinates
-		//here's where the bitmap is actually drawn somewhere else
-		al_draw_bitmap(padle, padle_x, padle_y, 0);
-
-		al_draw_bitmap(padle2, padle2_x, padle2_y, 0);
-
-		al_draw_bitmap(ball, ball_x, ball_y, 0);
-
-
-		if (bounding_box_collision(padle_x, padle_y, 150, 30, ball_x, ball_y, 50, 50)) {
-			if (ball_y < ball_y || ball_y > padle_y - 32) {
-				//flip the y direction
-				ball_dy = -ball_dy;
-			}
-		}
-		if (bounding_box_collision(padle2_x, padle2_y, 150, 30, ball_x, ball_y, 50, 50)) {
-			if (ball_y < padle2_y || ball_y > padle2_y - 32) {
-				//flip the y direction
-				ball_dy = -ball_dy;
-			}
-			al_flip_display();
-
-		}
-	}
 	
-}//end game loop
+		//RENDER SECTION
+		//if the clock ticked but no other events happened, don't bother redrawing
+		if (redraw && al_is_event_queue_empty(event_queue)) {
+			redraw = false;
+
+			//paint black over the old screen, so the old square dissapears
+			al_clear_to_color(al_map_rgb(0, 0, 0));
+
+			//the algorithm above just changes the x and y coordinates
+			//here's where the bitmap is actually drawn somewhere else
+			al_draw_bitmap(padle, padle_x, padle_y, 0);
+
+			al_draw_bitmap(padle2, padle2_x, padle2_y, 0);
+
+			al_draw_bitmap(ball, ball_x, ball_y, 0);
+
+
+			
+				al_flip_display();
+
+			
+		}
+
+	}//end game loop
 
 	al_destroy_bitmap(padle);
 	al_destroy_bitmap(padle2);
@@ -271,10 +271,10 @@ int main()
 }
 int bounding_box_collision(int b1_x, int b1_y, int b1_w, int b1_h, int b2_x, int b2_y, int b2_w, int b2_h)
 {
-	if ((b1_x > b2_x + b2_w - 1) || // is b1 on the right side of b2?
-		(b1_y > b2_y + b2_h - 1) || // is b1 under b2?
-		(b2_x > b1_x + b1_w - 1) || // is b2 on the right side of b1?
-		(b2_y > b1_y + b1_h - 1))   // is b2 under b1?
+	if ((b1_x > b2_x + b2_w) || // is b1 on the right side of b2?
+		(b1_y > b2_y + b2_h) || // is b1 under b2?
+		(b2_x > b1_x + b1_w) || // is b1 on the left side of b2?
+		(b2_y > b1_y + b1_h))   // is b1 uabove b2?
 	{
 		// no collision
 		return 0;
